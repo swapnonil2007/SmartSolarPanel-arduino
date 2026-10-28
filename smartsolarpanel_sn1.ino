@@ -1,8 +1,8 @@
-#include <Servo.h> // Required library for Servo Motor Control
+#include <Servo.h> 
 
 // Servo objects for dual-axis movement
-Servo horizontalServo; // Controls left/right panning (Pin 9)
-Servo verticalServo;   // Controls up/down tilting (Pin 10)
+Servo horizontalServo; 
+Servo verticalServo;   
 
 // Analog input pins connected to the 4 LDR voltage dividers
 const int PIN_LDR_TL = A0; // 1st LDR: Top-Left
@@ -14,7 +14,7 @@ const int PIN_LDR_BR = A3; // 4th LDR: Bottom-Right
 const int PIN_SERVO_H = 9;
 const int PIN_SERVO_V = 10;
 
-// --- SENSOR CALIBRATION & FEEDBACK CONTROL PARAMETERS
+// SENSOR CALIBRATION & FEEDBACK CONTROL PARAMETERS
 const int CAL_TL = 0;
 const int CAL_TR = 0;
 const int CAL_BL = 0;
@@ -22,8 +22,8 @@ const int CAL_BR = 0;
 
 // Deadband threshold: stops movement when light intensity difference is within this value
 const int THRESHOLD  = 15;  
-const int STEP_SIZE  = 1;   // Degrees to move per feedback step
-const int LOOP_DELAY = 30;  // Control loop interval in milliseconds
+const int STEP_SIZE  = 1;   
+const int LOOP_DELAY = 30;  
 
 // Safe mechanical rotation limits (in degrees)
 const int MIN_ANGLE = 10;
@@ -56,23 +56,23 @@ void setup() {
 }
 
 void loop() {
-  // 1. LIGHT DETECTION: Read and calibrate all 4 LDRs using analogRead()
+  // LIGHT DETECTION: Read and calibrate all 4 LDRs using analogRead()
   int tl = analogRead(PIN_LDR_TL) + CAL_TL;
   int tr = analogRead(PIN_LDR_TR) + CAL_TR;
   int bl = analogRead(PIN_LDR_BL) + CAL_BL;
   int br = analogRead(PIN_LDR_BR) + CAL_BR;
 
-  // 2. Compute directional light averages
+  // Compute directional light averages
   int avgTop   = (tl + tr) / 2;
   int avgBot   = (bl + br) / 2;
   int avgLeft  = (tl + bl) / 2;
   int avgRight = (tr + br) / 2;
 
-  // 3. Compute error (difference in light intensity across axes)
+  // Compute error (difference in light intensity across axes)
   int errorVert  = avgTop - avgBot;
   int errorHoriz = avgLeft - avgRight;
 
-  // 4. VERTICAL MOVEMENT & STABLE TRACKING
+  // VERTICAL MOVEMENT & STABLE TRACKING
   if (abs(errorVert) > THRESHOLD) {
     int newAngleV = angleV;
     
@@ -84,14 +84,14 @@ void loop() {
     
     newAngleV = constrain(newAngleV, MIN_ANGLE, MAX_ANGLE);
     
-    // Only command servo if the angle actually changed
+    
     if (newAngleV != angleV) {
       angleV = newAngleV;
       verticalServo.write(angleV);
     }
   }
 
-  // 5. HORIZONTAL MOVEMENT & STABLE TRACKING
+  // HORIZONTAL MOVEMENT & STABLE TRACKING
   if (abs(errorHoriz) > THRESHOLD) {
     int newAngleH = angleH;
     
@@ -110,7 +110,7 @@ void loop() {
     }
   }
 
-  // 6. Throttled Serial output (updates every 300ms to prevent simulation lag)
+  // Throttled Serial output (updates every 300ms to prevent simulation lag)
   if (millis() - lastPrintTime >= 300) {
     lastPrintTime = millis();
     Serial.print("Top:"); Serial.print(avgTop);
